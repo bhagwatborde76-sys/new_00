@@ -1,35 +1,32 @@
-4.	pipeline {
-5.	    // 1. Define where the pipeline will run
-    agent any // 'any' means Jenkins can use any available agent
-// 2. Group all the work into stages
-stages {
-    // 3. Define the first stage: Build
-    stage('Build') {
-        steps {
-            // 4. Define the actions for this stage
-            echo "https://github.com/bhagwatborde76-sys/new_00.git"
-        }
-    }
+pipeline{
+        agent any
 
-    // Define the second stage: Test
-    stage('Test') {
-        steps {
-            echo "This is the Test stage. I would run 'mvn test' here."
+    stages {
+        stage('Checkout SCM') {
+            steps{
+                echo 'Pulling code form Github...'
+                git url: 'https://github.com/bhagwatborde76-sys/3_tier_web_architecture_project.git' , branch: 'main'
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Building...'
+                sh 'ls -al'
+                sh 'pwd'
+                
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'hostnamectl'
+                echo 'Testing...'
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                echo 'Deploying...'
+            }
         }
     }
-
-    // Define the third stage: Code Quality
-    stage('Code Quality') {
-        steps {
-            echo "This is the Quality stage. I would run a SonarQube scan here."
-        }
-    }
-
-    // Define the fourth stage: Deploy
-    stage('Deploy to Staging') {
-        steps {
-            echo "This is the Deploy stage. I would deploy my app to a staging server."
-        }
-    }
-}
 }
