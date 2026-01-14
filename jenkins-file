@@ -1,5 +1,5 @@
-  	pipeline {
-  	    // 1. Define where the pipeline will run
+4.	pipeline {
+5.	    // 1. Define where the pipeline will run
     agent any // 'any' means Jenkins can use any available agent
 // 2. Group all the work into stages
 stages {
@@ -7,7 +7,7 @@ stages {
     stage('Build') {
         steps {
             // 4. Define the actions for this stage
-            echo "This is the Build stage. I would run 'mvn clean install' here."
+            echo "https://github.com/bhagwatborde76-sys/new_00.git"
         }
     }
 
