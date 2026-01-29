@@ -1,32 +1,69 @@
-pipeline{
-        agent any
+pipeline {
+    agent any
+    tools {
+        terraform 'terraform' // Name of the Terraform installation in Jenkins
+    }
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('aws-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-key')
+        AWS_DEFAULT_REGION = 'ap-northeast-1' 
+    }
 
+    parameters {
+        choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select the Terraform action to perform')
+    }
+    
     stages {
-        stage('Checkout SCM') {
-            steps{
-                echo 'Pulling code form Github...'
-                git url: 'https://github.com/bhagwatborde76-sys/3_tier_web_architecture_project.git' , branch: 'main'
-            }
-        }
-        stage('Build') {
+        stage('Checkout tf Code') {
             steps {
-                echo 'Building...'
-                sh 'ls -al'
-                sh 'pwd'
-                
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'hostnamectl'
-                echo 'Testing...'
+               git branch: 'main', url: 'https://github.com/bhagwatborde76-sys/new_00.git' //main.tf file location
             }
         }
         
-        stage('Deploy') {
+        stage('init tf') {
             steps {
-                echo 'Deploying...'
+               // withAWS(credentials: 'my-aws-key-id', region: 'ap-northeast-1') {
+                sh 'terraform init'
+               // }
             }
         }
+        
+        stage('validate tf') {
+            steps {
+             //   withAWS(credentials: 'my-aws-key-id', region: 'ap-northeast-1') {
+                sh 'terraform validate'
+               // }
+            }
+        }
+
+        stage('plan tf') {
+            steps {
+            //    withAWS(credentials: 'my-aws-key-id', region: 'ap-northeast-1') {
+                sh 'terraform plan -out=tfplan'
+              //  }                
+            }
+        }
+
+        stage('apply/destroy tf') {
+            steps { 
+                script {
+                    if (params.ACTION == 'apply') {
+                        // Apply the pre-generated plan. The --auto-approve flag is necessary for automation.
+                        sh 'terraform apply -auto-approve tfplan'
+                    } else if (params.ACTION == 'destroy') {
+                        // Destroy all resources managed by the configuration. The -auto-approve flag is used for automation.
+                        sh 'terraform destroy -auto-approve'
+                    }
+                }
+            }
+        }
+        
+        stage('tf output') {
+            steps {                
+                //withAWS(credentials: 'my-aws-key-id', region: 'us-west-2') {
+                sh 'terraform output'
+                //}
+            }
+        }        
     }
 }
